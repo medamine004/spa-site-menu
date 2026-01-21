@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxe Spa - Bien-être et Élégance</title>
+    <style>
+        /* Reset et base - Mobile-first */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Georgia', serif; /* Serif pour élégance */
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color); /* Beige clair en light, sombre en dark */
+            overflow-x: hidden;
+            transition: background-color 0.8s ease, color 0.8s ease; /* Transition douce et lente */
+        }
+        body.no-scroll {
+            overflow: hidden; /* Bloque le scroll de la page arrière quand modal ouvert */
+        }
+        h1, h2, h3 {
+            font-family: 'Helvetica', sans-serif; /* Sans-serif pour modernité */
+            font-weight: normal;
+            color: var(--text-color);
+            transition: color 0.8s ease;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Couleurs dominantes - Variables pour light/dark mode */
+        :root {
+            --black: #000;
+            --white: #fff;
+            --beige: #f5f0e6;
+            --gold: #d4af37;
+            --bg-color: #f9f7f4; /* Light: Beige clair */
+            --text-color: #333; /* Light: Gris foncé */
+            --section-alt-bg: var(--beige); /* Light: Beige pour sections alternées */
+            --header-bg: rgba(255, 255, 255, 0.95); /* Light: Blanc translucide */
+            --modal-bg: var(--beige); /* Light: Beige pour modal */
+            --contact-bg: var(--black); /* Light: Noir pour contact */
+            --footer-bg: var(--black); /* Light: Noir pour footer */
+            --contact-text: var(--white); /* Light: Blanc pour contact */
+            --border-color: var(--beige); /* Light: Beige pour bordures */
+        }
+        body.dark-mode {
+            --bg-color: #121212; /* Dark: Noir profond */
+            --text-color: #f0f0f0; /* Dark: Blanc cassé doux */
+            --section-alt-bg: #1e1e1e; /* Dark: Gris anthracite pour sections alternées */
+            --header-bg: rgba(18, 18, 18, 0.95); /* Dark: Noir translucide */
+            --modal-bg: #1e1e1e; /* Dark: Gris anthracite pour modal */
+            --contact-bg: #1e1e1e; /* Dark: Gris anthracite pour contact */
+            --footer-bg: #0a0a0a; /* Dark: Noir plus profond pour footer */
+            --contact-text: #f0f0f0; /* Dark: Blanc cassé pour contact */
+            --border-color: #333; /* Dark: Gris foncé pour bordures */
+        }
+
+        /* Header sticky - Épuré et minimal */
+        header {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            background-color: var(--header-bg); /* Adapté light/dark */
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            transition: background-color 0.8s ease;
+        }
+        header.scrolled {
+            background-color: var(--bg-color); /* Adapté light/dark */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Ombre douce pour premium */
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--gold);
+        }
+        .menu-toggle {
+            display: block;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        .menu-toggle span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: var(--black);
+            margin: 5px 0;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+        nav ul {
+            display: none;
+            flex-direction: column;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: var(--white);
+            padding: 2rem;
+            list-style: none;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        nav ul.active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        nav ul li {
+            margin: 1rem 0;
+            text-align: center;
+        }
+        nav ul li a {
+            color: var(--black);
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
+        nav ul li a:hover {
+            color: var(--gold);
+        }
+        .header-cta {
+            background: var(--gold);
+            color: var(--white);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+            display: none; /* Masqué sur mobile, visible sur desktop */
+        }
+        .header-cta:hover {
+            background: #b9932e;
+            transform: scale(1.02);
+        }
+
+        /* Bouton Dark Mode - Premium et discret */
+        .dark-mode-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: color 0.8s ease;
+            margin-left: 1rem;
+        }
+        .dark-mode-toggle:hover {
+            color: var(--gold);
+        }
+        .dark-mode-icon {
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+        }
+        .dark-mode-text {
+            display: none; /* Masqué sur mobile */
+        }
+        @media (min-width: 769px) {
+            .dark-mode-text {
+                display: inline; /* Visible sur desktop avec texte */
+            }
+        }
+
+        /* Responsive - Desktop */
+        @media (min-width: 769px) {
+            .menu-toggle {
+                display: none;
+            }
+            nav ul {
+                display: flex;
+                flex-direction: row;
+                position: static;
+                padding: 0;
+                opacity: 1;
+                transform: none;
+            }
+            nav ul li {
+                margin: 0 1.5rem;
+                text-align: left;
+            }
+            .header-cta {
+                display: block;
+            }
+        }
+
+        /* Sections générales - Padding adapté pour mobile */
+        section {
+            padding: 3rem 1.5rem;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: var(--bg-color);
+            transition: background-color 0.8s ease;
+        }
+        @media (min-width: 769px) {
+            section {
+                padding: 5rem 3rem;
+            }
+        }
+        .hero {
+            position: relative;
+            height: 80vh;
+            background-image: url('https://thumbs.dreamstime.com/b/luxury-spa-interior-showcasing-modern-treatment-space-relaxing-atmosphere-elegant-design-elements-generative-ai-364159611.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .hero p {
+            font-size: 1.2rem;
+        }
+        @media (min-width: 769px) {
+            .hero h1 {
+                font-size: 4rem;
+            }
+            .hero p {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Animations subtiles - Fade/reveal doux */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1.5s ease-out, transform 1.5s ease-out;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Boutons CTA - Uniformes et premium */
+        .cta {
+            background: var(--gold);
+            color: var(--white);
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+            width: 100%;
+            max-width: 300px;
+            margin: 1rem auto;
+            display: block;
+        }
+        .cta:hover {
+            background: #b9932e;
+            transform: scale(1.02);
+        }
+
+        /* Images - Immersives mais optimisées */
+        .image-full {
+            width: 100%;
+            height: auto;
+            max-height: 50vh;
+            object-fit: cover;
+            margin: 2rem 0;
+        }
+
+        /* Sections spécifiques - Simplifiées */
+        #experiences, #services, #tarifs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            background: var(--section-alt-bg);
+            transition: background-color 0.8s ease;
+        }
+        .item {
+            flex: 1 1 100%;
+            max-width: 400px;
+            text-align: left;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            transition: box-shadow 0.3s ease, border-color 0.8s ease;
+        }
+        .item:hover {
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        .item h3 {
+            margin-bottom: 0.5rem;
+        }
+        .item p {
+            margin: 0.5rem 0;
+        }
+        @media (min-width: 769px) {
+            .item {
+                flex: 1 1 30%;
+            }
+        }
+        #experiences {
+            background: var(--section-alt-bg);
+            transition: background-color 0.8s ease;
+        }
+        #contact {
+            background: var(--contact-bg);
+            color: var(--contact-text);
+            transition: background-color 0.8s ease, color 0.8s ease;
+        }
+        #contact a {
+            color: var(--gold);
+        }
+
+        /* Modal de réservation - Refactorisé pour scroll intelligent, réduction hauteur, UX en étapes */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4); /* Fond doux */
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: opacity 0.5s ease;
+            padding: 1rem; /* Padding réduit pour mobile */
+        }
+        .modal-content {
+            background: var(--modal-bg);
+            padding: 0; /* Padding zéro au conteneur principal, géré par sections internes */
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh; /* Limite hauteur pour scroll */
+            overflow-y: auto; /* Active scroll interne */
+            text-align: left;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            transition: transform 0.5s ease, background-color 0.8s ease;
+            border-radius: 8px; /* Coins arrondis pour élégance */
+        }
+        .modal-header {
+            position: sticky;
+            top: 0;
+            background: var(--modal-bg); /* Même fond pour continuité */
+            padding: 1rem 1.5rem; /* Padding réduit */
+            z-index: 1; /* Au-dessus du contenu scrollable */
+            border-bottom: 1px solid var(--gold); /* Ligne subtile pour séparation */
+            transition: background-color 0.8s ease;
+        }
+        .modal-header h2 {
+            text-align: center;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .modal-body {
+            padding: 1rem 1.5rem; /* Padding réduit pour contenu */
+        }
+        .modal-content label {
+            display: block;
+            margin: 0.75rem 0 0.25rem; /* Espacement réduit pour compacité */
+            font-size: 1.1rem;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gold);
+            background: var(--white);
+            font-family: 'Georgia', serif;
+            font-size: 1rem;
+        }
+        .modal-content p {
+            margin: 0.5rem 0;
+            font-size: 1.1rem;
+            color: var(--black);
+        }
+        .close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem; /* Ajusté pour padding réduit */
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--black);
+            transition: color 0.3s ease;
+            z-index: 2; /* Au-dessus du header sticky */
+        }
+        .close:hover {
+            color: var(--gold);
+        }
+        #preview-section {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--white);
+            border: 1px solid var(--gold);
+        }
+        #preview-section h3 {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .error {
+            color: red;
+            font-size: 0.9rem;
+            display: none;
+            margin-top: 0.25rem;
+        }
+
+        /* Footer - Sobre et luxueux */
+        footer {
+            background: var(--footer-bg);
+            color: var(--white);
+            padding: 3rem 1.5rem;
+            text-align: center;
+            transition: background-color 0.8s ease, color 0.8s ease;
+        }
+        footer .branding {
+            margin-bottom: 2rem;
+        }
+        footer .branding h2 {
+            font-size: 1.8rem;
+            color: var(--gold);
+        }
+        footer .branding p {
+            font-size: 1.1rem;
+        }
+        footer .coordonnees {
+            margin-bottom: 2rem;
+        }
+        footer .coordonnees p {
+            margin: 0.5rem 0;
+            font-size: 1rem;
+        }
+        footer .navigation {
+            margin-bottom: 2rem;
+        }
+        footer .navigation ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        footer .navigation a {
+            color: var(--white);
+            transition: color 0.3s ease;
+        }
+        footer .navigation a:hover {
+            color: var(--gold);
+        }
+        footer .signature {
+            font-style: italic;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        footer .copyright {
+            font-size: 0.9rem;
+        }
+        @media (min-width: 769px) {
+            footer .navigation ul {
+                flex-direction: row;
+                justify-content: center;
+                gap: 2rem;
+            }
+        }
+        @media (max-width: 360px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+    .cta {
+        font-size: 0.95rem;
+        padding: 0.8rem 1.5rem;
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- Header épuré -->
+    <header>
+        <div class="logo">Luxe Spa</div>
+        <nav>
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul>
+                <li><a href="#hero" onclick="toggleMenu()">Accueil</a></li>
+                <li><a href="#experiences" onclick="toggleMenu()">Expériences</a></li>
+                <li><a href="#services" onclick="toggleMenu()">Services</a></li>
+                <li><a href="#tarifs" onclick="toggleMenu()">Tarifs</a></li>
+                <li><a href="#contact" onclick="toggleMenu()">Contact</a></li>
+            </ul>
+        </nav>
+        <button class="header-cta" onclick="openReservationModal('Réservation Générale', 'À définir', 'À définir')">Réserver</button>
+        <!-- Bouton Dark Mode ajouté -->
+        <button class="dark-mode-toggle" onclick="toggleDarkMode()">
+            <span class="dark-mode-icon"></span>
+            <span class="dark-mode-text">Mode Nuit</span>
+        </button>
+    </header>
+
+    <!-- Hero - Entrée immersive -->
+    <section id="hero" class="hero fade-in">
+        <div>
+            <h1>Bienvenue au Luxe Spa</h1>
+            <p>Une oasis de calme et d'élégance</p>
+            <button class="cta" onclick="scrollToSection('#experiences')">Découvrir</button>
+        </div>
+    </section>
+
+    <!-- Expériences - Combinaison simplifiée de philosophie, rituel, parcours, testimonials -->
+    <section id="experiences" class="fade-in">
+        <h2>Nos Expériences</h2>
+        <p>Au Luxe Spa, nous honorons le corps et l'esprit avec une harmonie inspirée des traditions orientales et d'une élégance contemporaine. Le calme est notre luxe ultime.</p>
+        <div class="item">
+            <h3>Rituel du Jour</h3>
+            <img src="image/spa1.jpeg" alt="Rituel premium" class="image-full">
+            <p>Un voyage sensoriel avec huiles essentielles pour une relaxation profonde.</p>
+            <button class="cta" onclick="openReservationModal('Rituel du Jour', '200 DT', '90 min')">Réserver</button>
+        </div>
+        <div class="item">
+            <h3>Parcours Sensoriel</h3>
+            <p>Avant : Accueil personnalisé. Pendant : Immersion silencieuse. Après : Thé et détente.</p>
+        </div>
+        <div class="item">
+            <h3>Témoignages</h3>
+            <p>"Un havre de paix inoubliable." - Élise D.</p>
+            <p>"Sérénité absolue." - Marc L.</p>
+        </div>
+    </section>
+
+    <!-- Services - Hammam, Massages, Piscines -->
+    <section id="services" class="fade-in">
+        <h2>Nos Services</h2>
+        <div class="item">
+            <h3>Hammam</h3>
+            <img src="image/hammem.jpeg" alt="Hammam luxueux" class="image-full">
+            <p>Purification profonde traditionnelle.</p>
+            <button class="cta" onclick="openReservationModal('Hammam Traditionnel', '80 DT', '60 min')">Réserver</button>
+        </div>
+        <div class="item">
+            <h3>Massages</h3>
+            <img src="https://thatssotampa.com/wp-content/uploads/2024/11/VisageCover-1024x576.webp" alt="Salle de massage" class="image-full">
+            <p>Relaxant (100 DT, 60 min), Thérapeutique (120 DT, 90 min), Pierres Chaudes (150 DT, 75 min).</p>
+            <button class="cta" onclick="openReservationModal('Massage Relaxant', '100 DT', '60 min')">Réserver</button>
+        </div>
+        <div class="item">
+            <h3>Piscines</h3>
+            <img src="https://www.vicworkstudio.com/images/Our_projects/Private-Swimming-Pool-interior-in-Luxury-Home-Spa-01.jpg" alt="Piscine intérieure" class="image-full">
+            <p>Intérieure (50 DT, 120 min), Extérieure (60 DT, 120 min).</p>
+            <button class="cta" onclick="openReservationModal('Piscine Intérieure', '50 DT', '120 min')">Réserver</button>
+        </div>
+    </section>
+
+    <!-- Tarifs - Packages et Abonnements -->
+    <section id="tarifs" class="fade-in">
+        <h2>Nos Tarifs</h2>
+        <div class="item">
+            <h3>Packages Signature</h3>
+            <p>Hammam Royal (250 DT, 120 min), Rituel Oriental (180 DT, 90 min), Détente Absolue (300 DT, 150 min), Couple Experience (400 DT, 120 min).</p>
+            <button class="cta" onclick="openReservationModal('Hammam Royal', '250 DT', '120 min')">Réserver</button>
+        </div>
+        <div class="item">
+            <h3>Abonnements</h3>
+            <p>Parcours Détente (150 DT/mois), Parcours Luxe (300 DT/mois).</p>
+            <button class="cta" onclick="openReservationModal('Parcours Détente', '150 DT', 'Mensuel')">S'abonner</button>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="fade-in">
+        <h2>Contact</h2>
+        <p>Numéro : +216 58052184</p>
+        <button class="cta" onclick="window.open('https://wa.me/21612345678', '_blank')">Nous Contacter</button>
+    </section>
+
+    <!-- Footer restructuré -->
+    <footer>
+        <div class="branding">
+            <h2>Luxe Spa</h2>
+            <p>Une signature de sérénité et d'élégance.</p>
+        </div>
+        <div class="coordonnees">
+            <p>Adresse : 123 Rue du Calme, Tunis, Tunisie</p>
+            <p>Téléphone : +216 58052184</p>
+            <p>WhatsApp : +216 58 052 184</p>
+            <p>Horaires : Lundi - Vendredi 9h-21h, Samedi - Dimanche 10h-20h</p>
+        </div>
+        <div class="navigation">
+            <ul>
+                <li><a href="#hero">Accueil</a></li>
+                <li><a href="#experiences">Expériences</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#tarifs">Tarifs</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+        <p class="signature">Luxury is not noise. It’s silence.</p>
+        <p class="copyright">© 2026 Luxe Spa — Designed for calm.</p>
+    </footer>
+
+    <!-- Modal de réservation - Refactorisé -->
+    <div id="reservation-modal" class="modal" onclick="closeModal(event)">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div class="modal-header">
+                <h2>Réserver un Service</h2>
+            </div>
+            <div class="modal-body">
+                <form id="reservation-form">
+                    <!-- Étape 1: Sélection des informations -->
+                    <div id="step1">
+                        <label for="nom">Nom :</label>
+                        <input type="text" id="nom" required>
+                        <span class="error" id="nom-error">Veuillez entrer votre nom.</span>
+                        
+                        <label for="prenom">Prénom :</label>
+                        <input type="text" id="prenom" required>
+                        <span class="error" id="prenom-error">Veuillez entrer votre prénom.</span>
+                        
+                        <label>Service :</label>
+                        <p id="service-display"></p>
+                        
+                        <label>Prix :</label>
+                        <p id="price-display"></p>
+                        
+                        <label>Durée :</label>
+                        <p id="duration-display"></p>
+                        
+                        <label for="date">Date :</label>
+                        <input type="date" id="date" required>
+                        <span class="error" id="date-error">Veuillez sélectionner une date.</span>
+                        
+                        <label for="heure">Heure :</label>
+                        <input type="time" id="heure" required>
+                        <span class="error" id="heure-error">Veuillez sélectionner une heure.</span>
+                        
+                        <button type="button" class="cta" onclick="showPreview()">Prévisualiser</button>
+                    </div>
+                    
+                    <!-- Étape 2: Aperçu / Confirmation -->
+                    <div id="preview-section">
+                        <h3>Confirmation</h3>
+                        <p id="preview-nom"></p>
+                        <p id="preview-prenom"></p>
+                        <p id="preview-service"></p>
+                        <p id="preview-prix"></p>
+                        <p id="preview-duree"></p>
+                        <p id="preview-date"></p>
+                        <p id="preview-heure"></p>
+                        <button type="button" class="cta" onclick="sendToWhatsApp()">Confirmer</button>
+                        <button type="button" onclick="editReservation()" style="background: transparent; color: var(--gold); border: 1px solid var(--gold); margin-top: 0.5rem; width: 100%;">Modifier</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Menu mobile - Animation douce, fermeture auto au clic
+        function toggleMenu() {
+            const menu = document.querySelector('nav ul');
+            const toggle = document.querySelector('.menu-toggle');
+            menu.classList.toggle('active');
+            toggle.classList.toggle('active');
+        }
+
+        // Scroll fluide
+        function scrollToSection(id) {
+            document.querySelector(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Header scrolled - Effet doux
+        window.addEventListener('scroll', () => {
+            document.querySelector('header').classList.toggle('scrolled', window.scrollY > 0);
+        });
+
+        // Fade-in sur scroll - Observer simplifié
+        const fadeElements = document.querySelectorAll('.fade-in');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target); // Optimisation : observer une fois
+                }
+            });
+        }, { threshold: 0.1 });
+        fadeElements.forEach(el => observer.observe(el));
+
+        // Modal réservation - Ouverture avec blocage scroll body
+        function openReservationModal(service, price, duration) {
+            document.getElementById('service-display').textContent = service;
+            document.getElementById('price-display').textContent = price;
+            document.getElementById('duration-display').textContent = duration;
+            document.getElementById('reservation-modal').style.display = 'flex';
+            hideErrors();
+            document.getElementById('preview-section').style.display = 'none';
+            document.body.classList.add('no-scroll'); // Bloque scroll body
+            // Réinitialise le scroll du modal au top pour une expérience propre
+            document.querySelector('.modal-content').scrollTop = 0;
+        }
+
+        // Fermeture modal avec restauration scroll body
+        function closeModal(event) {
+            if (!event || event.target.id === 'reservation-modal') {
+                document.getElementById('reservation-modal').style.display = 'none';
+                document.body.classList.remove('no-scroll'); // Restaure scroll body
+            }
+        }
+
+        // Masquer erreurs
+        function hideErrors() {
+            document.querySelectorAll('.error').forEach(el => el.style.display = 'none');
+        }
+
+        // Validation formulaire
+        function validateForm() {
+            let valid = true;
+            hideErrors();
+            if (!document.getElementById('nom').value) {
+                document.getElementById('nom-error').style.display = 'block';
+                valid = false;
+            }
+            if (!document.getElementById('prenom').value) {
+                document.getElementById('prenom-error').style.display = 'block';
+                valid = false;
+            }
+            if (!document.getElementById('date').value) {
+                document.getElementById('date-error').style.display = 'block';
+                valid = false;
+            }
+            if (!document.getElementById('heure').value) {
+                document.getElementById('heure-error').style.display = 'block';
+                valid = false;
+            }
+            return valid;
+        }
+
+        // Afficher preview (Étape 2)
+        function showPreview() {
+            if (!validateForm()) return;
+            document.getElementById('preview-nom').textContent = `Nom : ${document.getElementById('nom').value}`;
+            document.getElementById('preview-prenom').textContent = `Prénom : ${document.getElementById('prenom').value}`;
+            document.getElementById('preview-service').textContent = `Service : ${document.getElementById('service-display').textContent}`;
+            document.getElementById('preview-prix').textContent = `Prix : ${document.getElementById('price-display').textContent}`;
+            document.getElementById('preview-duree').textContent = `Durée : ${document.getElementById('duration-display').textContent}`;
+            document.getElementById('preview-date').textContent = `Date : ${document.getElementById('date').value}`;
+            document.getElementById('preview-heure').textContent = `Heure : ${document.getElementById('heure').value}`;
+            document.getElementById('preview-section').style.display = 'block';
+            // Scroll fluide vers le bas si nécessaire (mais avec max-height, scroll interne gère)
+        }
+
+        // Éditer réservation (Retour à Étape 1)
+        function editReservation() {
+            document.getElementById('preview-section').style.display = 'none';
+        }
+
+        // Envoyer à WhatsApp - Message VIP court (Étape 3)
+        function sendToWhatsApp() {
+            const nom = document.getElementById('nom').value;
+            const prenom = document.getElementById('prenom').value;
+            const service = document.getElementById('service-display').textContent;
+            const duree = document.getElementById('duration-display').textContent;
+            const prix = document.getElementById('price-display').textContent;
+            const date = document.getElementById('date').value;
+            const heure = document.getElementById('heure').value;
+
+            const message = `Bonjour,%0A%0AJe souhaite réserver :%0A- ${service} (${duree}, ${prix})%0A- Le ${date} à ${heure}%0A- Au nom de ${prenom} ${nom}%0A%0AMerci.`;
+            const phone = '21658052184';
+            const url = `https://wa.me/${phone}?text=${message}`;
+            window.open(url, '_blank');
+            closeModal();
+        }
+
+        // Fonctionnalité Dark Mode - Toggle, mémorisation avec localStorage
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+            updateToggleButton(isDark);
+        }
+
+        function updateToggleButton(isDark) {
+            const icon = document.querySelector('.dark-mode-icon');
+            const text = document.querySelector('.dark-mode-text');
+            icon.textContent = isDark ? '☀️' : '🌙'; // Soleil pour light, Lune pour dark
+            text.textContent = isDark ? 'Mode Jour' : 'Mode Nuit';
+        }
+
+        // Initialisation Dark Mode au chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            const darkMode = localStorage.getItem('darkMode');
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+            }
+            updateToggleButton(document.body.classList.contains('dark-mode'));
+        });
+    </script>
+</body>
+</html>
